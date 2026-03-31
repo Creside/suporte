@@ -976,15 +976,15 @@
             const docRef = doc(db, "userData", currentUser.uid);
             const docSnap = await getDoc(docRef);
             if (docSnap.exists() && docSnap.data().templates && Object.keys(docSnap.data().templates).length > 0) {
-                const saved = docSnap.data().templates;
-                // Auto-migrate: if the saved templates are mostly old format (no category keywords),
-                // replace with defaults automatically so filters always work
-                if (needsMigration(saved)) {
-                    templates = { ...DEFAULT_TEMPLATES };
+                // Always sanitize: maps old-format names to new, ensures all defaults present
+                const sanitized = sanitizeTemplates(docSnap.data().templates);
+                templates = sanitized;
+                // Save back if anything changed
+                const savedCount = Object.keys(docSnap.data().templates).length;
+                const newCount = Object.keys(sanitized).length;
+                if (newCount !== savedCount) {
                     await setDoc(docRef, { templates }, { merge: true });
                     showToast('🔄 Modelos atualizados para o novo formato!', 'info');
-                } else {
-                    templates = saved;
                 }
             } else {
                 templates = { ...DEFAULT_TEMPLATES };
@@ -1051,45 +1051,74 @@
     };
 
     // ─── CATEGORY FILTER ──────────────────────────────────────────────────────
-    // Categorias fixas com palavras-chave — ignora emoji, agrupa por nome
+    // Mapa fixo: keyword encontrada em qualquer parte do nome → label do chip
     const CAT_MAP = [
-        { label: '💻 TI',         keyword: 'TI'         },
-        { label: '🌐 Rede',       keyword: 'Rede'       },
-        { label: '🖨️ Impressora', keyword: 'Impressora' },
-        { label: '🖱️ Periférico', keyword: 'Periférico' },
-        { label: '⚙️ Sistema',    keyword: 'Sistema'    },
-        { label: '🔧 Instalação', keyword: 'Instalação' },
-        { label: '🔄 Manutenção', keyword: 'Manutenção' },
+        { label: 'TI',          keys: ['💻 TI', 'TI —']              },
+        { label: 'Rede',        keys: ['🌐 Rede', 'Rede —']          },
+        { label: 'Impressora',  keys: ['🖨️ Impressora', 'Impressora —'] },
+        { label: 'Periférico',  keys: ['Periférico', 'Periférico —'] },
+        { label: 'Sistema',     keys: ['⚙️ Sistema', 'Sistema —']    },
+        { label: 'Instalação',  keys: ['🔧 Instalação', 'Instalação —'] },
+        { label: 'Manutenção',  keys: ['🔄 Manutenção', 'Manutenção —', 'Remanejamento'] },
     ];
 
-    function getCatForName(name) {
-        // Split on " — " and take left part, then search for keyword anywhere in it
-        // This avoids any emoji parsing issues entirely
-        const left = name.includes(' — ') ? name.split(' — ')[0] : name;
-        const found = CAT_MAP.find(c => left.indexOf(c.keyword) !== -1);
-        return found ? found.label : 'Outros';
+    // Chips exibidos: só o label limpo, sem emoji duplicado
+    const CAT_CHIPS = [
+        { chip: 'Todos',       label: 'Todos'       },
+        { chip: '💻 TI',       label: 'TI'          },
+        { chip: '🌐 Rede',     label: 'Rede'        },
+        { chip: '🖨️ Impressora', label: 'Impressora'},
+        { chip: '🖱️ Periférico', label: 'Periférico'},
+        { chip: '⚙️ Sistema',  label: 'Sistema'     },
+        { chip: '🔧 Instalação', label: 'Instalação'},
+        { chip: '🔄 Manutenção', label: 'Manutenção'},
+        { chip: 'Outros',      label: 'Outros'      },
+    ];
+
+    function getCatLabel(name) {
+        for (const cat of CAT_MAP) {
+            if (cat.keys.some(k => name.includes(k))) return cat.label;
+        }
+        return 'Outros';
     }
 
-    function needsMigration(tpls) {
-        // Returns true if any template name doesn't match our category keywords
-        // i.e. the old templates without icons/format are still there
-        const keys = Object.keys(tpls);
-        if (keys.length === 0) return false;
-        const recognized = keys.filter(n => CAT_MAP.some(c => n.indexOf(c.keyword) !== -1));
-        // If less than half the templates are recognized, needs migration
-        return recognized.length < keys.length / 2;
+    function sanitizeTemplates(tpls) {
+        // Build a name→data map from old-format names to new DEFAULT_TEMPLATES
+        // Strategy: if a saved name matches a default by similarity, keep the default version
+        // For unknown names (user-created), keep as-is under "Outros"
+        const defaultKeys = Object.keys(DEFAULT_TEMPLATES);
+        const result = {};
+
+        Object.entries(tpls).forEach(([name, data]) => {
+            // Check if this name already exists cleanly in defaults
+            if (DEFAULT_TEMPLATES[name]) {
+                result[name] = data; // already correct format
+                return;
+            }
+            // Check if it matches a default by stripping emoji prefix
+            // e.g. "Instalação — SSD NVMe" matches "🔧 Instalação — SSD NVMe"
+            const cleanName = name.replace(/^[\s\S]*? — /, '').trim(); // "SSD NVMe"
+            const match = defaultKeys.find(k => k.includes(cleanName) || cleanName.length > 4 && k.toLowerCase().includes(cleanName.toLowerCase()));
+            if (match) {
+                result[match] = DEFAULT_TEMPLATES[match]; // use default version
+            } else {
+                result[name] = data; // keep user custom
+            }
+        });
+
+        // Always ensure all defaults are present
+        defaultKeys.forEach(k => { if (!result[k]) result[k] = DEFAULT_TEMPLATES[k]; });
+        return result;
     }
 
     function getCats() {
-        const used = new Set(Object.keys(templates).map(getCatForName));
-        const ordered = ['Todos', ...CAT_MAP.map(c => c.label).filter(l => used.has(l))];
-        if (used.has('Outros')) ordered.push('Outros');
-        return ordered;
+        const usedLabels = new Set(Object.keys(templates).map(getCatLabel));
+        return CAT_CHIPS.filter(c => c.label === 'Todos' || usedLabels.has(c.label));
     }
 
     function renderCats() {
         document.getElementById('categoryFilter').innerHTML = getCats().map(c =>
-            `<span class="cat-chip${c === activeCat ? ' active' : ''}" onclick="setCat(${JSON.stringify(c)})">${c}</span>`
+            `<span class="cat-chip${activeCat === c.label ? ' active' : ''}" onclick="setCat('${c.label}')">${c.chip}</span>`
         ).join('');
     }
 
@@ -1104,7 +1133,7 @@
     function getFiltered() {
         const q = (document.getElementById('templateSearch')?.value || '').toLowerCase().trim();
         return Object.keys(templates).filter(name => {
-            const catOk = activeCat === 'Todos' || getCatForName(name) === activeCat;
+            const catOk = activeCat === 'Todos' || getCatLabel(name) === activeCat;
             const searchOk = !q || name.toLowerCase().includes(q);
             return catOk && searchOk;
         });
