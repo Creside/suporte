@@ -3,126 +3,701 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Suporte Técnico - Cloud Sync v9.5</title>
+    <title>Suporte Técnico - Cloud Sync v10.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-body: #121212; --bg-container: #1e1e1e; --bg-input: #2d2d2d;
-            --text-primary: #e0e0e0; --text-secondary: #b0b0b0;
-            --accent-blue: #3f8cf5; --accent-green: #2eb85c; --accent-red: #e55353;
-            --border-color: #333333;
+            --bg-body: #0d0d0f;
+            --bg-container: #141416;
+            --bg-card: #1a1a1e;
+            --bg-input: #1f1f24;
+            --bg-hover: #252529;
+            --text-primary: #e8e8f0;
+            --text-secondary: #888899;
+            --text-muted: #555566;
+            --accent-blue: #4f9eff;
+            --accent-blue-dim: rgba(79,158,255,0.12);
+            --accent-green: #3ecf74;
+            --accent-green-dim: rgba(62,207,116,0.12);
+            --accent-red: #ff5f5f;
+            --accent-red-dim: rgba(255,95,95,0.12);
+            --accent-yellow: #f5c842;
+            --border: #2a2a30;
+            --border-focus: #4f9eff;
+            --radius: 10px;
+            --radius-sm: 6px;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'DM Sans', sans-serif;
+            --shadow: 0 4px 24px rgba(0,0,0,0.5);
+            --transition: 0.18s ease;
         }
 
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-body); color: var(--text-primary); display: flex; justify-content: center; padding: 20px; align-items: flex-start; min-height: 100vh; margin: 0; box-sizing: border-box; }
-        .container { background: var(--bg-container); padding: 25px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); width: 100%; max-width: 600px; border: 1px solid var(--border-color); box-sizing: border-box; }
-        
-        h2 { color: var(--accent-blue); margin: 0 0 15px 0; font-size: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        label { display: block; margin-top: 12px; font-weight: 600; color: var(--text-secondary); font-size: 13px; text-transform: uppercase; }
-        
-        input, textarea, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; font-size: 14px; background: var(--bg-input); color: var(--text-primary); }
-        
-        .checklist-container { background: #181818; padding: 15px; border-radius: 8px; margin-top: 10px; border: 1px dashed var(--accent-blue); display: none; }
-        .checklist-title { font-size: 11px; font-weight: bold; color: var(--accent-blue); margin-bottom: 10px; text-transform: uppercase; border-left: 3px solid var(--accent-blue); padding-left: 8px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .check-item { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: flex-start; margin-bottom: 10px; font-size: 14px; cursor: pointer; }
-        .check-item input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; margin: 0; accent-color: var(--accent-blue); }
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-body);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 24px 16px 48px;
+        }
 
-        .btn-group { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-top: 25px; }
-        button { padding: 12px; cursor: pointer; border: none; border-radius: 6px; font-weight: bold; transition: 0.3s; }
-        .btn-clear, .btn-back, .btn-copy { background-color: var(--accent-blue); color: white; }
-        .btn-login { background-color: var(--accent-blue); color: white; width: 100%; margin-top: 20px; }
-        
-        .btn-back { width: 100%; margin-top: 5px; margin-bottom: 20px; }
-        .btn-settings { background-color: transparent; color: var(--accent-blue); border: 1px solid var(--accent-blue); font-size: 11px; padding: 5px 8px; margin-left: 5px; }
-        .btn-logout { background-color: transparent; color: var(--accent-red); border: 1px solid var(--accent-red); font-size: 11px; padding: 5px 8px; }
-        .btn-add { background: var(--accent-green); color: white; width: 100%; margin-top: 10px; }
-        
-        .edit-controls { display: flex; gap: 10px; margin-top: 10px; display: none; }
-        .btn-edit-mode { background: var(--accent-blue); color: white; flex: 1; padding: 8px; font-size: 12px; }
-        .btn-del-mode { background: var(--accent-red); color: white; flex: 1; padding: 8px; font-size: 12px; }
+        /* Background grid */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(79,158,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(79,158,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
 
-        #loginScreen, #appScreen, #mainScreen, #settingsScreen { display: none; }
-        
-        @media (max-width: 600px) {
-            body { padding: 10px; }
-            .container { padding: 15px; }
-            h2 { font-size: 18px; flex-direction: column; align-items: flex-start; gap: 10px; }
-            h2 div { width: 100%; display: flex; justify-content: space-between; }
+        .container {
+            background: var(--bg-container);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            width: 100%;
+            max-width: 620px;
+            box-shadow: var(--shadow), 0 0 0 1px rgba(255,255,255,0.03);
+            position: relative;
+            z-index: 1;
+            animation: fadeUp 0.3s ease;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── HEADER ─── */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .page-title {
+            font-family: var(--font-mono);
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .page-title::before {
+            content: '';
+            width: 8px; height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-green);
+            flex-shrink: 0;
+        }
+
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+
+        /* ─── BUTTONS ─── */
+        button {
+            font-family: var(--font-sans);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 9px 16px;
+            transition: all var(--transition);
+            letter-spacing: 0.2px;
+        }
+
+        .btn-icon {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            padding: 7px 12px;
+            font-size: 12px;
+        }
+        .btn-icon:hover { background: var(--bg-hover); color: var(--text-primary); border-color: #3a3a42; }
+
+        .btn-danger-icon {
+            background: transparent;
+            color: var(--accent-red);
+            border: 1px solid rgba(255,95,95,0.25);
+            padding: 7px 12px;
+            font-size: 12px;
+        }
+        .btn-danger-icon:hover { background: var(--accent-red-dim); }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: #fff;
+            width: 100%;
+            padding: 13px;
+            font-size: 14px;
+            border-radius: var(--radius);
+            margin-top: 16px;
+        }
+        .btn-primary:hover { background: #6aadff; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(79,158,255,0.3); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled { background: #2a2a32; color: var(--text-muted); cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .btn-success {
+            background: var(--accent-green);
+            color: #0d1a10;
+            width: 100%;
+            padding: 11px;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        .btn-success:hover { background: #5ade8a; transform: translateY(-1px); }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            width: 100%;
+            padding: 11px;
+            margin-top: 8px;
+        }
+        .btn-outline:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+        .btn-ghost-red {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            width: 100%;
+            padding: 9px;
+            margin-top: 8px;
+            font-size: 12px;
+        }
+        .btn-ghost-red:hover { color: var(--accent-red); border-color: rgba(255,95,95,0.3); }
+
+        .btn-back {
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            padding: 9px 16px;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+        .btn-back:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+        .btn-group { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-top: 20px; }
+        .btn-group .btn-clear {
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        .btn-group .btn-clear:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+        .btn-copy {
+            background: var(--accent-blue);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-copy:hover { background: #6aadff; }
+        .btn-copy:disabled { background: #2a2a32; color: var(--text-muted); cursor: not-allowed; }
+        .btn-copy.copied { background: var(--accent-green); color: #0d1a10; }
+
+        /* ─── FORM ELEMENTS ─── */
+        label {
+            display: block;
+            margin-top: 16px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-family: var(--font-mono);
+            margin-bottom: 6px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 14px;
+            transition: all var(--transition);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--border-focus);
+            background: #1a1a22;
+            box-shadow: 0 0 0 3px rgba(79,158,255,0.1);
+        }
+
+        input::placeholder, textarea::placeholder { color: var(--text-muted); }
+        select option { background: #1f1f24; }
+
+        textarea { resize: vertical; line-height: 1.6; }
+        textarea[readonly] { background: #111115; font-family: var(--font-mono); font-size: 13px; color: var(--text-secondary); }
+
+        .inline-row { display: flex; gap: 10px; }
+        .inline-row .tratamento-wrap { width: 90px; flex-shrink: 0; }
+        .inline-row .usuario-wrap { flex: 1; }
+
+        /* ─── CHECKLIST ─── */
+        .checklist-container {
+            background: #0f0f14;
+            border: 1px dashed rgba(79,158,255,0.25);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-top: 10px;
+            display: none;
+            animation: fadeUp 0.2s ease;
+        }
+
+        .checklist-section-title {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            border-left: 2px solid var(--accent-blue);
+            padding-left: 8px;
+            margin-bottom: 12px;
+        }
+
+        .checklist-section + .checklist-section { margin-top: 16px; }
+
+        .check-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 7px 10px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: background var(--transition);
+            margin-bottom: 4px;
+        }
+        .check-item:hover { background: rgba(79,158,255,0.06); }
+        .check-item input[type="checkbox"] {
+            width: 16px; height: 16px;
+            flex-shrink: 0;
+            margin-top: 1px;
+            accent-color: var(--accent-blue);
+            cursor: pointer;
+            padding: 0;
+            border: none;
+        }
+        .check-item span { font-size: 13px; color: var(--text-secondary); line-height: 1.5; flex: 1; }
+        .check-item:has(input:checked) span { color: var(--text-primary); }
+
+        /* ─── PREVIEW ─── */
+        .preview-wrapper { position: relative; margin-top: 6px; }
+        .preview-label-badge {
+            position: absolute;
+            top: 10px; right: 10px;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: var(--bg-body);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        /* ─── SCREENS ─── */
+        .screen { display: none; }
+        .screen.active { display: block; animation: fadeUp 0.25s ease; }
+
+        /* ─── LOGIN ─── */
+        .login-logo {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .login-logo .logo-icon {
+            width: 52px; height: 52px;
+            background: var(--accent-blue-dim);
+            border: 1px solid rgba(79,158,255,0.2);
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 12px;
+        }
+        .login-logo h2 {
+            font-family: var(--font-mono);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .login-logo p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        #loginMsg {
+            text-align: center;
+            font-size: 13px;
+            color: var(--accent-red);
+            margin-top: 12px;
+            min-height: 20px;
+        }
+
+        /* ─── EMPTY STATE ─── */
+        .empty-state {
+            text-align: center;
+            padding: 32px 20px;
+            color: var(--text-muted);
+            border: 1px dashed var(--border);
+            border-radius: var(--radius);
+            margin-top: 10px;
+        }
+        .empty-state .empty-icon { font-size: 28px; margin-bottom: 10px; }
+        .empty-state p { font-size: 13px; line-height: 1.6; }
+        .empty-state strong { color: var(--text-secondary); }
+
+        /* ─── SETTINGS ─── */
+        .settings-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .settings-section-label {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 14px;
+            margin-top: 0;
+        }
+
+        .edit-controls { display: none; gap: 8px; margin-top: 10px; }
+        .edit-controls.visible { display: flex; }
+        .btn-edit { background: var(--accent-blue-dim); color: var(--accent-blue); border: 1px solid rgba(79,158,255,0.25); flex: 1; padding: 9px; font-size: 12px; }
+        .btn-edit:hover { background: rgba(79,158,255,0.2); }
+        .btn-del { background: var(--accent-red-dim); color: var(--accent-red); border: 1px solid rgba(255,95,95,0.25); flex: 1; padding: 9px; font-size: 12px; }
+        .btn-del:hover { background: rgba(255,95,95,0.2); }
+
+        .form-editing-badge {
+            display: inline-block;
+            font-size: 10px;
+            font-family: var(--font-mono);
+            background: rgba(245,200,66,0.15);
+            color: var(--accent-yellow);
+            border: 1px solid rgba(245,200,66,0.25);
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        /* ─── MODAL ─── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.15s ease;
+        }
+        .modal-overlay.visible { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .modal {
+            background: var(--bg-container);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+            max-width: 380px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            animation: modalIn 0.2s ease;
+        }
+        @keyframes modalIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .modal-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+        .modal-body {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .modal-actions { display: flex; gap: 10px; }
+        .modal-actions .btn-cancel-modal { background: var(--bg-card); color: var(--text-secondary); border: 1px solid var(--border); flex: 1; }
+        .modal-actions .btn-cancel-modal:hover { background: var(--bg-hover); }
+        .modal-actions .btn-confirm-modal { background: var(--accent-red); color: white; flex: 2; }
+        .modal-actions .btn-confirm-modal:hover { background: #ff7878; }
+
+        /* ─── TOAST ─── */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+            align-items: center;
+        }
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            animation: toastIn 0.2s ease, toastOut 0.3s ease 2.5s forwards;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toast.success { border-color: rgba(62,207,116,0.3); }
+        .toast.error { border-color: rgba(255,95,95,0.3); }
+        .toast.info { border-color: rgba(79,158,255,0.3); }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(8px); } }
+
+        /* ─── LOADER ─── */
+        .btn-loader {
+            display: inline-block;
+            width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .full-loader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 32px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        /* ─── HISTORY ─── */
+        .history-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .history-item {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .history-item:hover { border-color: rgba(79,158,255,0.3); background: var(--bg-hover); }
+        .history-item-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px; }
+        .history-item-meta { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); }
+
+        /* ─── SEPARATOR ─── */
+        .separator {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 20px 0;
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 500px) {
+            body { padding: 12px 10px 40px; }
+            .container { padding: 18px; border-radius: 12px; }
             .btn-group { grid-template-columns: 1fr 1fr; }
+            .page-title { font-size: 13px; }
         }
     </style>
 </head>
 <body>
 
-<div class="container" id="loginScreen" style="display: block;">
-    <h2 style="justify-content: center; border-bottom: none;">🔒 Acesso Restrito</h2>
-    <p style="text-align: center; color: var(--text-secondary); font-size: 13px; margin-top: -10px;">Entre com suas credenciais do Firebase</p>
-    <label>E-mail</label><input type="email" id="emailInput" placeholder="seu@email.com">
-    <label>Senha</label><input type="password" id="senhaInput" placeholder="Sua senha secreta">
-    <button class="btn-login" onclick="fazerLogin()">Entrar no Sistema</button>
-    <div id="loginMsg" style="text-align: center; margin-top: 15px; font-size: 13px; color: var(--accent-red);"></div>
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal">
+        <div class="modal-title" id="modalTitle">Confirmar ação</div>
+        <div class="modal-body" id="modalBody">Tem certeza?</div>
+        <div class="modal-actions">
+            <button class="btn-cancel-modal" onclick="closeModal()">Cancelar</button>
+            <button class="btn-confirm-modal" id="modalConfirmBtn">Confirmar</button>
+        </div>
+    </div>
 </div>
 
-<div class="container" id="appScreen">
-    <div id="mainScreen">
-        <h2>Scripts Gerador <div><button class="btn-logout" onclick="fazerLogout()">Sair</button><button class="btn-settings" onclick="showSettings()">⚙ Configurações</button></div></h2>
-        
-        <div style="display:flex; gap:8px;">
-            <div style="width:80px;"><label>Trat.</label><select id="tratamento"><option>Sr.</option><option>Sra.</option></select></div>
-            <div style="flex-grow:1;"><label>Usuário</label><input type="text" id="usuario" placeholder="Nome do solicitante"></div>
+<div class="container" id="loginScreen">
+    <div class="login-logo">
+        <div class="logo-icon">🔒</div>
+        <h2>Acesso Restrito</h2>
+        <p>Cloud Sync v10.0 — Suporte Técnico</p>
+    </div>
+    <div>
+        <label>E-mail</label>
+        <input type="email" id="emailInput" placeholder="seu@email.com" autocomplete="email">
+    </div>
+    <div>
+        <label>Senha</label>
+        <input type="password" id="senhaInput" placeholder="Sua senha" autocomplete="current-password">
+    </div>
+    <button class="btn-primary" id="btnLogin" onclick="fazerLogin()">Entrar no Sistema</button>
+    <div id="loginMsg"></div>
+</div>
+
+<div class="container screen" id="appScreen">
+
+    <!-- MAIN SCREEN -->
+    <div class="screen" id="mainScreen">
+        <div class="page-header">
+            <div class="page-title">Scripts Gerador</div>
+            <div class="header-actions">
+                <button class="btn-icon" onclick="showHistory()">📋 Histórico</button>
+                <button class="btn-icon" onclick="showSettings()">⚙ Config</button>
+                <button class="btn-danger-icon" onclick="confirmarLogout()">Sair</button>
+            </div>
         </div>
-        
+
+        <div class="inline-row">
+            <div class="tratamento-wrap">
+                <label>Trat.</label>
+                <select id="tratamento">
+                    <option>Sr.</option>
+                    <option>Sra.</option>
+                </select>
+            </div>
+            <div class="usuario-wrap">
+                <label>Usuário / Solicitante</label>
+                <input type="text" id="usuario" placeholder="Nome completo" oninput="debounceMontarScript()">
+            </div>
+        </div>
+
         <label>Tipo de Atendimento</label>
-        <select id="tipoAtendimento">
+        <select id="tipoAtendimento" onchange="debounceMontarScript()">
             <option value="problema">🔧 Problema / Manutenção</option>
             <option value="instalacao">📥 Instalação / Nova Solicitação</option>
         </select>
 
-        <label>Ocorrência / Chamado</label><input type="text" id="problema" placeholder="Ex: Lentidão no Sistema">
-        <label>Modelo Rápido</label><select id="templateSelect" onchange="carregarCamposDinamicos()"><option value="">-- Carregando... --</option></select>
-        
+        <label>Ocorrência / Chamado</label>
+        <input type="text" id="problema" placeholder="Ex: Lentidão no sistema, impressora offline..." oninput="debounceMontarScript()">
+
+        <label>Observações Adicionais</label>
+        <textarea id="observacoes" rows="2" placeholder="Informações extras que devem constar no script final..." oninput="debounceMontarScript()"></textarea>
+
+        <label>Modelo Rápido</label>
+        <select id="templateSelect" onchange="carregarCamposDinamicos()">
+            <option value="">-- Selecionar Modelo --</option>
+        </select>
+        <div id="templateEmptyHint"></div>
+
         <div id="areaDinamica" class="checklist-container">
-            <div class="checklist-title">Testes e Validações</div><div id="listaTestes"></div>
-            <div class="checklist-title" style="margin-top:15px;">Resolução Aplicada</div><div id="listaResolucao"></div>
+            <div class="checklist-section">
+                <div class="checklist-section-title">Testes e Validações</div>
+                <div id="listaTestes"></div>
+            </div>
+            <div class="checklist-section">
+                <div class="checklist-section-title">Resolução Aplicada</div>
+                <div id="listaResolucao"></div>
+            </div>
         </div>
-        
-        <label>Procedimento Técnico Final</label>
-        <textarea id="procedimento" rows="8" readonly placeholder="Checklist pendente..."></textarea>
-        
+
+        <label style="margin-top:20px;">Procedimento Técnico Final</label>
+        <div class="preview-wrapper">
+            <textarea id="procedimento" rows="9" readonly placeholder="Preencha os campos acima para gerar o script..."></textarea>
+            <span class="preview-label-badge">PREVIEW</span>
+        </div>
+
         <div class="btn-group">
             <button class="btn-clear" onclick="limparCampos()">Limpar</button>
-            <button id="btnCopy" class="btn-copy" onclick="copiarTexto()">Copiar Script</button>
+            <button id="btnCopy" class="btn-copy" onclick="copiarTexto()" disabled>Copiar Script</button>
         </div>
     </div>
 
-    <div id="settingsScreen">
-        <h2>Configurações ☁️</h2>
-        <button class="btn-back" onclick="showMain()">← Voltar ao Início</button>
-        
-        <div style="background: #2d2d2d; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-color);">
-            <label style="margin-top: 0; color: var(--accent-blue);">Modelos na Nuvem</label>
+    <!-- HISTORY SCREEN -->
+    <div class="screen" id="historyScreen">
+        <div class="page-header">
+            <div class="page-title">Histórico Local</div>
+        </div>
+        <button class="btn-back" onclick="showMain()">← Voltar</button>
+
+        <div id="historyContent">
+            <div class="full-loader"><span>Carregando...</span></div>
+        </div>
+    </div>
+
+    <!-- SETTINGS SCREEN -->
+    <div class="screen" id="settingsScreen">
+        <div class="page-header">
+            <div class="page-title">Configurações</div>
+        </div>
+        <button class="btn-back" onclick="showMain()">← Voltar</button>
+
+        <div class="settings-section">
+            <label class="settings-section-label">Modelos na Nuvem</label>
             <select id="manageSelect" onchange="toggleEditControls()">
                 <option value="">-- Escolha para Editar/Excluir --</option>
             </select>
             <div id="editControls" class="edit-controls">
-                <button class="btn-edit-mode" onclick="triggerEdit()">📝 Editar</button>
-                <button class="btn-del-mode" onclick="triggerDelete()">🗑️ Excluir</button>
+                <button class="btn-edit" onclick="triggerEdit()">📝 Editar</button>
+                <button class="btn-del" onclick="triggerDelete()">🗑️ Excluir</button>
             </div>
         </div>
 
-        <div style="background: #252525; padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);">
-            <label id="formTitle" style="margin-top: 0; color: var(--accent-green);">Cadastrar Novo Procedimento</label>
+        <div class="settings-section">
+            <label class="settings-section-label" id="formTitle">Cadastrar Novo Procedimento</label>
             <input type="text" id="newLabel" placeholder="Título do Modelo">
-            <textarea id="newTestes" rows="2" placeholder="Testes (separe por PONTO .)"></textarea>
-            <textarea id="newResolucoes" rows="2" placeholder="Resoluções (separe por PONTO .)"></textarea>
-            <button id="btnSaveTemplate" class="btn-add" onclick="addTemplate()">Salvar na Nuvem</button>
-            <button id="btnCancelEdit" style="display:none; background: transparent; color: #888; width: 100%; margin-top: 10px; border: 1px solid #444;" onclick="cancelEdit()">Cancelar</button>
+            <label>Testes <span style="color:var(--text-muted);font-size:10px;text-transform:none;letter-spacing:0;font-family:var(--font-sans);">(uma por linha)</span></label>
+            <textarea id="newTestes" rows="3" placeholder="Verificação de conectividade&#10;Reinicialização do serviço&#10;Teste de acesso remoto"></textarea>
+            <label>Resoluções <span style="color:var(--text-muted);font-size:10px;text-transform:none;letter-spacing:0;font-family:var(--font-sans);">(uma por linha)</span></label>
+            <textarea id="newResolucoes" rows="3" placeholder="Atualização de drivers&#10;Configuração de firewall&#10;Reinstalação do cliente"></textarea>
+            <button id="btnSaveTemplate" class="btn-success" onclick="addTemplate()">☁ Salvar na Nuvem</button>
+            <button id="btnCancelEdit" class="btn-ghost-red" style="display:none;" onclick="cancelEdit()">Cancelar edição</button>
         </div>
 
-        <div style="margin-top: 20px; border-top: 1px solid #444; padding-top: 15px;">
-            <button style="background:#333; color:#aaa; font-size:11px; width:100%;" onclick="document.getElementById('importFile').click()">📥 Restaurar Backup .JSON (Modo Recovery)</button>
-            <input type="file" id="importFile" style="display:none" onchange="importarTemplates(event)">
+        <div class="settings-section">
+            <label class="settings-section-label">Backup / Restauração</label>
+            <button class="btn-outline" onclick="exportarTemplates()">📤 Exportar Backup .JSON</button>
+            <button class="btn-outline" onclick="document.getElementById('importFile').click()">📥 Restaurar Backup .JSON</button>
+            <input type="file" id="importFile" style="display:none" accept=".json" onchange="importarTemplates(event)">
+            <hr class="separator" style="margin:14px 0;">
+            <button class="btn-ghost-red" onclick="confirmarLimparHistorico()">🗑 Limpar histórico local</button>
         </div>
     </div>
+
 </div>
 
 <script type="module">
@@ -130,13 +705,17 @@
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+    // ─── FIREBASE CONFIG ───────────────────────────────────────────────────────
+    // ⚠️  SEGURANÇA: As regras do Firestore devem garantir que apenas usuários
+    //     autenticados possam ler/escrever os próprios dados (userData/{uid}).
+    //     Restrinja também esta chave por domínio no Google Cloud Console.
     const firebaseConfig = {
-      apiKey: "AIzaSyByHEnrOw-b188DfXS-qE2guwVMujdkJ_0",
-      authDomain: "gerador-de-chamados.firebaseapp.com",
-      projectId: "gerador-de-chamados",
-      storageBucket: "gerador-de-chamados.firebasestorage.app",
-      messagingSenderId: "313628427225",
-      appId: "1:313628427225:web:b1d29ef4bd3934abd44fc8"
+        apiKey: "AIzaSyByHEnrOw-b188DfXS-qE2guwVMujdkJ_0",
+        authDomain: "gerador-de-chamados.firebaseapp.com",
+        projectId: "gerador-de-chamados",
+        storageBucket: "gerador-de-chamados.firebasestorage.app",
+        messagingSenderId: "313628427225",
+        appId: "1:313628427225:web:b1d29ef4bd3934abd44fc8"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -146,153 +725,430 @@
     let templates = {};
     let editingKey = null;
     let currentUser = null;
+    let debounceTimer = null;
+    const MAX_HISTORY = 30;
 
+    // ─── AUTH ──────────────────────────────────────────────────────────────────
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             currentUser = user;
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('appScreen').style.display = 'block';
-            document.getElementById('mainScreen').style.display = 'block';
-            await carregarDaNuvem(); 
+            showScreen('loginScreen', false);
+            showScreen('appScreen', true);
+            showMain();
+            await carregarDaNuvem();
         } else {
             currentUser = null;
-            document.getElementById('loginScreen').style.display = 'block';
-            document.getElementById('appScreen').style.display = 'none';
+            showScreen('loginScreen', true);
+            showScreen('appScreen', false);
         }
     });
 
-    window.fazerLogin = function() {
-        const email = document.getElementById('emailInput').value;
+    window.fazerLogin = async function () {
+        const email = document.getElementById('emailInput').value.trim();
         const senha = document.getElementById('senhaInput').value;
-        signInWithEmailAndPassword(auth, email, senha).catch(() => {
-            document.getElementById('loginMsg').innerText = "Erro: Acesso negado.";
-        });
-    }
+        const btn = document.getElementById('btnLogin');
+        if (!email || !senha) {
+            document.getElementById('loginMsg').innerText = "Preencha e-mail e senha.";
+            return;
+        }
+        btn.innerHTML = '<span class="btn-loader"></span>Entrando...';
+        btn.disabled = true;
+        document.getElementById('loginMsg').innerText = '';
+        try {
+            await signInWithEmailAndPassword(auth, email, senha);
+        } catch (e) {
+            document.getElementById('loginMsg').innerText = "Credenciais inválidas. Tente novamente.";
+            btn.innerHTML = 'Entrar no Sistema';
+            btn.disabled = false;
+        }
+    };
 
-    window.fazerLogout = function() { signOut(auth); }
+    window.fazerLogout = function () { signOut(auth); };
 
+    window.confirmarLogout = function () {
+        openModal('Encerrar sessão', 'Deseja sair do sistema?', () => signOut(auth));
+    };
+
+    // Entrar com Enter na tela de login
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && document.getElementById('loginScreen').classList.contains('active')) {
+            window.fazerLogin();
+        }
+    });
+
+    // ─── CLOUD ────────────────────────────────────────────────────────────────
     async function carregarDaNuvem() {
-        if(!currentUser) return;
-        const docRef = doc(db, "userData", currentUser.uid);
-        const docSnap = await getDoc(docRef);
-        templates = docSnap.exists() ? docSnap.data().templates : {};
-        renderMenus();
+        if (!currentUser) return;
+        try {
+            const docRef = doc(db, "userData", currentUser.uid);
+            const docSnap = await getDoc(docRef);
+            templates = docSnap.exists() ? (docSnap.data().templates || {}) : {};
+            renderMenus();
+        } catch (err) {
+            showToast('❌ Erro ao carregar modelos da nuvem.', 'error');
+            templates = {};
+            renderMenus();
+        }
     }
 
     async function salvarNaNuvem() {
-        if(!currentUser) return;
-        const docRef = doc(db, "userData", currentUser.uid);
-        await setDoc(docRef, { templates: templates }, { merge: true });
-    }
-
-    window.showSettings = function() { document.getElementById('mainScreen').style.display='none'; document.getElementById('settingsScreen').style.display='block'; }
-    window.showMain = function() { document.getElementById('mainScreen').style.display='block'; document.getElementById('settingsScreen').style.display='none'; window.cancelEdit(); }
-
-    function renderMenus() {
-        const selectApp = document.getElementById('templateSelect');
-        const selectManage = document.getElementById('manageSelect');
-        const options = '<option value="">-- Selecionar Modelo --</option>' + Object.keys(templates).map(l => `<option value="${l}">${l}</option>`).join('');
-        selectApp.innerHTML = options;
-        selectManage.innerHTML = '<option value="">-- Escolha para Editar/Excluir --</option>' + Object.keys(templates).map(l => `<option value="${l}">${l}</option>`).join('');
-        toggleEditControls();
-    }
-
-    window.toggleEditControls = function() { document.getElementById('editControls').style.display = document.getElementById('manageSelect').value ? 'flex' : 'none'; }
-
-    window.triggerEdit = function() {
-        const label = document.getElementById('manageSelect').value;
-        editingKey = label;
-        const data = templates[label];
-        document.getElementById('newLabel').value = label;
-        document.getElementById('newTestes').value = data.testes.join('. ');
-        document.getElementById('newResolucoes').value = data.resolucoes.join('. ');
-        document.getElementById('formTitle').innerText = "Editando Modelo";
-        document.getElementById('btnSaveTemplate').innerText = "Atualizar na Nuvem";
-        document.getElementById('btnCancelEdit').style.display = "block";
-    }
-
-    window.triggerDelete = async function() {
-        const label = document.getElementById('manageSelect').value;
-        if(label && confirm(`Deseja deletar permanentemente "${label}"?`)) {
-            delete templates[label];
-            renderMenus(); await salvarNaNuvem();
+        if (!currentUser) return;
+        try {
+            const docRef = doc(db, "userData", currentUser.uid);
+            await setDoc(docRef, { templates }, { merge: true });
+        } catch (err) {
+            showToast('❌ Falha ao salvar na nuvem. Verifique a conexão.', 'error');
         }
     }
 
-    window.cancelEdit = function() {
-        editingKey = null;
-        document.getElementById('newLabel').value = ''; document.getElementById('newTestes').value = ''; document.getElementById('newResolucoes').value = '';
-        document.getElementById('formTitle').innerText = "Cadastrar Novo Procedimento";
-        document.getElementById('btnSaveTemplate').innerText = "Salvar na Nuvem";
-        document.getElementById('btnCancelEdit').style.display = "none";
-    }
-
-    window.addTemplate = async function() {
-        const label = document.getElementById('newLabel').value.trim();
-        const testes = document.getElementById('newTestes').value.split('.').map(s => s.trim()).filter(s => s);
-        const res = document.getElementById('newResolucoes').value.split('.').map(s => s.trim()).filter(s => s);
-        if (label) {
-            if (editingKey && editingKey !== label) delete templates[editingKey];
-            templates[label] = { testes: testes, resolucoes: res };
-            renderMenus(); await salvarNaNuvem(); window.cancelEdit();
+    // ─── SCREEN NAVIGATION ────────────────────────────────────────────────────
+    function showScreen(id, visible) {
+        const el = document.getElementById(id);
+        if (visible) {
+            el.style.display = 'block';
+            requestAnimationFrame(() => el.classList.add('active'));
+        } else {
+            el.classList.remove('active');
+            setTimeout(() => { el.style.display = 'none'; }, 50);
         }
     }
 
-    window.importarTemplates = function(event) {
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            try {
-                const imported = JSON.parse(e.target.result);
-                templates = {...templates, ...imported};
-                renderMenus(); await salvarNaNuvem();
-                alert("Backup restaurado e sincronizado com sucesso!");
-            } catch (err) { alert("Erro ao ler o arquivo."); }
-        };
-        reader.readAsText(event.target.files[0]);
-    }
-
-    window.carregarCamposDinamicos = function() {
-        const sel = document.getElementById('templateSelect').value;
-        const area = document.getElementById('areaDinamica');
-        if(!sel) { area.style.display = 'none'; return; }
-        area.style.display = 'block';
-        document.getElementById('listaTestes').innerHTML = templates[sel].testes.map(t => `<label class="check-item"><input type="checkbox" class="check-test" value="${t}" onchange="montarProcedimento()"> <span>${t}</span></label>`).join('');
-        document.getElementById('listaResolucao').innerHTML = templates[sel].resolucoes.map(r => `<label class="check-item"><input type="checkbox" class="check-res" value="${r}" onchange="montarProcedimento()"> <span>${r}</span></label>`).join('');
-        window.montarProcedimento();
-    }
-
-    window.montarProcedimento = function() {
-        const tMarcados = Array.from(document.querySelectorAll('.check-test:checked')).map(c => c.value);
-        const rMarcadas = Array.from(document.querySelectorAll('.check-res:checked')).map(c => c.value);
-        let texto = "";
-        if(tMarcados.length > 0) texto += "TESTES E VALIDAÇÕES:\n" + tMarcados.map(t => " • " + t).join("\n");
-        if(rMarcadas.length > 0) {
-            if(texto !== "") texto += "\n\n"; 
-            texto += "RESOLUÇÃO APLICADA:\n" + rMarcadas.map(r => " • " + r).join("\n");
-        }
-        document.getElementById('procedimento').value = texto;
-    }
-
-    window.copiarTexto = function() {
-        const trat = document.getElementById('tratamento').value;
-        const user = document.getElementById('usuario').value || "...";
-        const prob = document.getElementById('problema').value || "...";
-        const proc = document.getElementById('procedimento').value || "...";
-        const tipo = document.getElementById('tipoAtendimento').value;
-        const fraseSucesso = (tipo === "problema") ? `o problema foi solucionado com sucesso` : `a instalação foi concluída com sucesso`;
-        const script = `Prezado(a) ${user},\n\nComunicamos a conclusão do atendimento técnico referente à solicitação: "${prob}".\n\nA seguir, apresentamos o relatório das ações executadas:\n\n${proc}\n\nDestacamos que ${fraseSucesso}, e o pleno funcionamento dos recursos foi testado e aprovado pelo(a) ${trat} ${user} no ato do atendimento.\n\nDiante da resolução, este chamado encontra-se formalmente encerrado em nosso sistema. Em caso de reincidência ou para novas solicitações, orientamos a abertura de um novo chamado, garantindo assim o registro e a conformidade do suporte prestado.\n\nAtenciosamente,\nEquipe de Suporte Técnico.`;
-        navigator.clipboard.writeText(script).then(() => {
-            document.getElementById('btnCopy').innerText = "✓ Copiado!";
-            setTimeout(() => { document.getElementById('btnCopy').innerText = "Copiar Script"; }, 2000);
+    function switchAppScreen(id) {
+        ['mainScreen', 'settingsScreen', 'historyScreen'].forEach(s => {
+            const el = document.getElementById(s);
+            if (s === id) {
+                el.style.display = 'block';
+                requestAnimationFrame(() => el.classList.add('active'));
+            } else {
+                el.classList.remove('active');
+                setTimeout(() => { el.style.display = 'none'; }, 50);
+            }
         });
     }
 
-    window.limparCampos = function() {
-        document.getElementById('usuario').value = ''; document.getElementById('problema').value = '';
-        document.getElementById('procedimento').value = ''; document.getElementById('templateSelect').value = '';
-        document.getElementById('areaDinamica').style.display = 'none';
+    window.showMain = function () { switchAppScreen('mainScreen'); };
+    window.showSettings = function () { switchAppScreen('settingsScreen'); };
+    window.showHistory = function () {
+        switchAppScreen('historyScreen');
+        renderHistory();
+    };
+
+    // ─── TEMPLATES ────────────────────────────────────────────────────────────
+    function renderMenus() {
+        const keys = Object.keys(templates);
+        const selectApp = document.getElementById('templateSelect');
+        const selectManage = document.getElementById('manageSelect');
+        const hint = document.getElementById('templateEmptyHint');
+
+        if (keys.length === 0) {
+            selectApp.innerHTML = '<option value="">-- Nenhum modelo cadastrado --</option>';
+            hint.innerHTML = `<div class="empty-state"><div class="empty-icon">📂</div><p>Você ainda não tem modelos.<br><strong>Vá em Configurações → Cadastrar Novo Procedimento</strong> para criar o primeiro.</p></div>`;
+        } else {
+            selectApp.innerHTML = '<option value="">-- Selecionar Modelo --</option>' +
+                keys.map(l => `<option value="${l}">${l}</option>`).join('');
+            hint.innerHTML = '';
+        }
+
+        selectManage.innerHTML = '<option value="">-- Escolha para Editar/Excluir --</option>' +
+            keys.map(l => `<option value="${l}">${l}</option>`).join('');
+
+        toggleEditControls();
     }
 
+    window.toggleEditControls = function () {
+        const controls = document.getElementById('editControls');
+        if (document.getElementById('manageSelect').value) {
+            controls.classList.add('visible');
+        } else {
+            controls.classList.remove('visible');
+        }
+    };
+
+    window.triggerEdit = function () {
+        const label = document.getElementById('manageSelect').value;
+        if (!label) return;
+        editingKey = label;
+        const data = templates[label];
+        document.getElementById('newLabel').value = label;
+        document.getElementById('newTestes').value = data.testes.join('\n');
+        document.getElementById('newResolucoes').value = data.resolucoes.join('\n');
+        document.getElementById('formTitle').innerHTML = `Editando Modelo <span class="form-editing-badge">EDIT</span>`;
+        document.getElementById('btnSaveTemplate').innerText = '☁ Atualizar na Nuvem';
+        document.getElementById('btnCancelEdit').style.display = 'block';
+        showSettings();
+        document.getElementById('newLabel').focus();
+    };
+
+    window.triggerDelete = function () {
+        const label = document.getElementById('manageSelect').value;
+        if (!label) return;
+        openModal(
+            'Excluir modelo',
+            `Deseja excluir permanentemente o modelo "<strong>${label}</strong>"? Esta ação não pode ser desfeita.`,
+            async () => {
+                delete templates[label];
+                renderMenus();
+                await salvarNaNuvem();
+                showToast('🗑 Modelo excluído.', 'info');
+            }
+        );
+    };
+
+    window.cancelEdit = function () {
+        editingKey = null;
+        document.getElementById('newLabel').value = '';
+        document.getElementById('newTestes').value = '';
+        document.getElementById('newResolucoes').value = '';
+        document.getElementById('formTitle').innerText = 'Cadastrar Novo Procedimento';
+        document.getElementById('btnSaveTemplate').innerText = '☁ Salvar na Nuvem';
+        document.getElementById('btnCancelEdit').style.display = 'none';
+    };
+
+    window.addTemplate = async function () {
+        const label = document.getElementById('newLabel').value.trim();
+        // Separação por quebra de linha (mais intuitivo que ponto)
+        const testes = document.getElementById('newTestes').value
+            .split('\n').map(s => s.trim()).filter(Boolean);
+        const res = document.getElementById('newResolucoes').value
+            .split('\n').map(s => s.trim()).filter(Boolean);
+
+        if (!label) {
+            showToast('⚠️ Informe um título para o modelo.', 'error');
+            document.getElementById('newLabel').focus();
+            return;
+        }
+
+        const btn = document.getElementById('btnSaveTemplate');
+        btn.innerHTML = '<span class="btn-loader" style="border-top-color:#0d1a10;"></span>Salvando...';
+        btn.disabled = true;
+
+        if (editingKey && editingKey !== label) delete templates[editingKey];
+        templates[label] = { testes, resolucoes: res };
+        renderMenus();
+        await salvarNaNuvem();
+        window.cancelEdit();
+
+        btn.innerHTML = '☁ Salvar na Nuvem';
+        btn.disabled = false;
+        showToast('✅ Modelo salvo na nuvem!', 'success');
+    };
+
+    // ─── CHECKLIST & SCRIPT ───────────────────────────────────────────────────
+    window.carregarCamposDinamicos = function () {
+        const sel = document.getElementById('templateSelect').value;
+        const area = document.getElementById('areaDinamica');
+        if (!sel) { area.style.display = 'none'; updateCopyBtn(); return; }
+        area.style.display = 'block';
+        const t = templates[sel];
+        document.getElementById('listaTestes').innerHTML = t.testes.map(item =>
+            `<label class="check-item"><input type="checkbox" class="check-test" value="${escapeHtml(item)}" onchange="montarProcedimento()"><span>${escapeHtml(item)}</span></label>`
+        ).join('');
+        document.getElementById('listaResolucao').innerHTML = t.resolucoes.map(item =>
+            `<label class="check-item"><input type="checkbox" class="check-res" value="${escapeHtml(item)}" onchange="montarProcedimento()"><span>${escapeHtml(item)}</span></label>`
+        ).join('');
+        montarProcedimento();
+    };
+
+    window.montarProcedimento = function () {
+        const tMarcados = Array.from(document.querySelectorAll('.check-test:checked')).map(c => c.value);
+        const rMarcadas = Array.from(document.querySelectorAll('.check-res:checked')).map(c => c.value);
+        let texto = "";
+        if (tMarcados.length > 0) texto += "TESTES E VALIDAÇÕES:\n" + tMarcados.map(t => " • " + t).join("\n");
+        if (rMarcadas.length > 0) {
+            if (texto) texto += "\n\n";
+            texto += "RESOLUÇÃO APLICADA:\n" + rMarcadas.map(r => " • " + r).join("\n");
+        }
+        document.getElementById('procedimento').value = texto;
+        updateCopyBtn();
+        // Atualiza preview do script completo
+        atualizarPreview();
+    };
+
+    window.debounceMontarScript = function () {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            atualizarPreview();
+            updateCopyBtn();
+        }, 250);
+    };
+
+    function atualizarPreview() {
+        const trat = document.getElementById('tratamento').value;
+        const user = document.getElementById('usuario').value.trim();
+        const prob = document.getElementById('problema').value.trim();
+        const proc = document.getElementById('procedimento').value.trim();
+        const obs = document.getElementById('observacoes').value.trim();
+        const tipo = document.getElementById('tipoAtendimento').value;
+
+        if (!user && !prob) {
+            document.getElementById('procedimento').setAttribute('placeholder', 'Preencha os campos acima para gerar o script...');
+            return;
+        }
+
+        const fraseSucesso = tipo === "problema"
+            ? "o problema foi solucionado com sucesso"
+            : "a instalação foi concluída com sucesso";
+
+        const nomeUser = user || "...";
+        const nomeProb = prob || "...";
+        const procTexto = proc || "(Nenhum procedimento selecionado)";
+        const obsTexto = obs ? `\nObservações: ${obs}\n` : '';
+
+        const script = `Prezado(a) ${nomeUser},\n\nComunicamos a conclusão do atendimento técnico referente à solicitação: "${nomeProb}".\n\nA seguir, apresentamos o relatório das ações executadas:\n\n${procTexto}${obsTexto ? '\n' + obsTexto : ''}\nDestacamos que ${fraseSucesso}, e o pleno funcionamento dos recursos foi testado e aprovado pelo(a) ${trat} ${nomeUser} no ato do atendimento.\n\nDiante da resolução, este chamado encontra-se formalmente encerrado em nosso sistema. Em caso de reincidência ou para novas solicitações, orientamos a abertura de um novo chamado, garantindo assim o registro e a conformidade do suporte prestado.\n\nAtenciosamente,\nEquipe de Suporte Técnico.`;
+
+        document.getElementById('procedimento').value = script;
+    }
+
+    function updateCopyBtn() {
+        const btn = document.getElementById('btnCopy');
+        const user = document.getElementById('usuario').value.trim();
+        const prob = document.getElementById('problema').value.trim();
+        btn.disabled = !user || !prob;
+    }
+
+    // ─── COPY & HISTORY ───────────────────────────────────────────────────────
+    window.copiarTexto = async function () {
+        const script = document.getElementById('procedimento').value;
+        if (!script) return;
+        try {
+            await navigator.clipboard.writeText(script);
+            const btn = document.getElementById('btnCopy');
+            btn.innerText = '✓ Copiado!';
+            btn.classList.add('copied');
+            setTimeout(() => { btn.innerText = 'Copiar Script'; btn.classList.remove('copied'); }, 2000);
+            salvarNoHistorico(script);
+            showToast('✅ Script copiado!', 'success');
+        } catch {
+            showToast('❌ Não foi possível copiar. Selecione e copie manualmente.', 'error');
+        }
+    };
+
+    function salvarNoHistorico(script) {
+        const user = document.getElementById('usuario').value.trim() || '?';
+        const prob = document.getElementById('problema').value.trim() || '?';
+        try {
+            const hist = JSON.parse(localStorage.getItem('suporte_history') || '[]');
+            hist.unshift({ user, prob, script, date: new Date().toLocaleString('pt-BR') });
+            if (hist.length > MAX_HISTORY) hist.splice(MAX_HISTORY);
+            localStorage.setItem('suporte_history', JSON.stringify(hist));
+        } catch { /* silently fail */ }
+    }
+
+    function renderHistory() {
+        const el = document.getElementById('historyContent');
+        try {
+            const hist = JSON.parse(localStorage.getItem('suporte_history') || '[]');
+            if (hist.length === 0) {
+                el.innerHTML = `<div class="empty-state"><div class="empty-icon">📜</div><p>Nenhum script copiado ainda.<br><strong>Os últimos ${MAX_HISTORY} scripts aparecerão aqui.</strong></p></div>`;
+                return;
+            }
+            el.innerHTML = `<div class="history-list">${hist.map((item, i) =>
+                `<div class="history-item" onclick="copiarDoHistorico(${i})">
+                    <div class="history-item-title">${escapeHtml(item.prob)}</div>
+                    <div class="history-item-meta">${escapeHtml(item.user)} · ${item.date}</div>
+                </div>`
+            ).join('')}</div><p style="font-size:12px;color:var(--text-muted);margin-top:12px;text-align:center;">Clique em um item para copiar novamente</p>`;
+        } catch {
+            el.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>Erro ao carregar histórico.</p></div>`;
+        }
+    }
+
+    window.copiarDoHistorico = async function (i) {
+        try {
+            const hist = JSON.parse(localStorage.getItem('suporte_history') || '[]');
+            await navigator.clipboard.writeText(hist[i].script);
+            showToast('✅ Script copiado do histórico!', 'success');
+        } catch {
+            showToast('❌ Não foi possível copiar.', 'error');
+        }
+    };
+
+    window.confirmarLimparHistorico = function () {
+        openModal('Limpar histórico', 'Deseja apagar todo o histórico local de scripts?', () => {
+            localStorage.removeItem('suporte_history');
+            showToast('🗑 Histórico apagado.', 'info');
+            renderHistory();
+        });
+    };
+
+    // ─── IMPORT / EXPORT ─────────────────────────────────────────────────────
+    window.exportarTemplates = function () {
+        const json = JSON.stringify(templates, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `suporte-backup-${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        showToast('📤 Backup exportado!', 'success');
+    };
+
+    window.importarTemplates = function (event) {
+        const reader = new FileReader();
+        reader.onload = async function (e) {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (typeof imported !== 'object' || Array.isArray(imported)) throw new Error();
+                const count = Object.keys(imported).length;
+                templates = { ...templates, ...imported };
+                renderMenus();
+                await salvarNaNuvem();
+                showToast(`✅ ${count} modelos importados e sincronizados!`, 'success');
+            } catch {
+                showToast('❌ Arquivo inválido. Verifique o formato JSON.', 'error');
+            }
+        };
+        reader.readAsText(event.target.files[0]);
+        event.target.value = '';
+    };
+
+    // ─── CLEAR ────────────────────────────────────────────────────────────────
+    window.limparCampos = function () {
+        document.getElementById('usuario').value = '';
+        document.getElementById('problema').value = '';
+        document.getElementById('observacoes').value = '';
+        document.getElementById('procedimento').value = '';
+        document.getElementById('templateSelect').value = '';
+        document.getElementById('areaDinamica').style.display = 'none';
+        updateCopyBtn();
+    };
+
+    // ─── MODAL ────────────────────────────────────────────────────────────────
+    let modalCallback = null;
+    window.openModal = function (title, body, onConfirm) {
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalBody').innerHTML = body;
+        modalCallback = onConfirm;
+        document.getElementById('confirmModal').classList.add('visible');
+    };
+    window.closeModal = function () {
+        document.getElementById('confirmModal').classList.remove('visible');
+        modalCallback = null;
+    };
+    document.getElementById('modalConfirmBtn').addEventListener('click', () => {
+        if (modalCallback) modalCallback();
+        window.closeModal();
+    });
+    document.getElementById('confirmModal').addEventListener('click', function (e) {
+        if (e.target === this) window.closeModal();
+    });
+
+    // ─── TOAST ────────────────────────────────────────────────────────────────
+    window.showToast = function (msg, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerText = msg;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 2900);
+    };
+
+    // ─── UTILS ────────────────────────────────────────────────────────────────
+    function escapeHtml(str) {
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // Prevent context menu
     document.addEventListener('contextmenu', e => e.preventDefault());
 </script>
 </body>
