@@ -1041,25 +1041,38 @@
     };
 
     // ─── CATEGORY FILTER ──────────────────────────────────────────────────────
+    // Categorias fixas com palavras-chave — ignora emoji, agrupa por nome
+    const CAT_MAP = [
+        { label: '💻 TI',          keyword: 'TI'          },
+        { label: '🌐 Rede',        keyword: 'Rede'        },
+        { label: '🖨️ Impressora',  keyword: 'Impressora'  },
+        { label: '🖱️ Periférico',  keyword: 'Periférico'  },
+        { label: '⚙️ Sistema',     keyword: 'Sistema'     },
+        { label: '🔧 Instalação',  keyword: 'Instalação'  },
+        { label: '🔄 Manutenção',  keyword: 'Manutenção'  },
+    ];
+
+    function getCatForName(name) {
+        // Extract the word(s) between emoji and " — "
+        // e.g. "💻 TI — Computador" → "TI"
+        // e.g. "🖱️ Periférico — Mouse" → "Periférico"
+        const part = name.split(' — ')[0];          // "💻 TI" or "🖱️ Periférico"
+        // strip leading emoji+space: keep only letters/accents
+        const word = part.replace(/^[\p{Emoji}\s]+/u, '').trim();
+        const found = CAT_MAP.find(c => word.startsWith(c.keyword));
+        return found ? found.label : 'Outros';
+    }
+
     function getCats() {
-        const cats = new Set();
-        Object.keys(templates).forEach(name => {
-            const m = name.match(/^.+? — /);
-            // extract prefix before " — "
-            if (m) {
-                // e.g. "💻 TI" from "💻 TI — Computador lento"
-                const prefix = name.split(' — ')[0].trim();
-                cats.add(prefix);
-            } else {
-                cats.add('Outros');
-            }
-        });
-        return ['Todos', ...Array.from(cats).sort()];
+        // Only show categories that actually have templates
+        const used = new Set(Object.keys(templates).map(getCatForName));
+        const ordered = ['Todos', ...CAT_MAP.map(c => c.label).filter(l => used.has(l))];
+        if (used.has('Outros')) ordered.push('Outros');
+        return ordered;
     }
 
     function renderCats() {
-        const cats = getCats();
-        document.getElementById('categoryFilter').innerHTML = cats.map(c =>
+        document.getElementById('categoryFilter').innerHTML = getCats().map(c =>
             `<span class="cat-chip${c === activeCat ? ' active' : ''}" onclick="setCat(${JSON.stringify(c)})">${c}</span>`
         ).join('');
     }
@@ -1075,8 +1088,7 @@
     function getFiltered() {
         const q = (document.getElementById('templateSearch')?.value || '').toLowerCase().trim();
         return Object.keys(templates).filter(name => {
-            const prefix = name.split(' — ')[0].trim();
-            const catOk = activeCat === 'Todos' || prefix === activeCat || (activeCat === 'Outros' && !name.includes(' — '));
+            const catOk = activeCat === 'Todos' || getCatForName(name) === activeCat;
             const searchOk = !q || name.toLowerCase().includes(q);
             return catOk && searchOk;
         });
