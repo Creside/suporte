@@ -694,6 +694,7 @@
             <button class="btn-outline" onclick="document.getElementById('importFile').click()">📥 Restaurar Backup .JSON</button>
             <input type="file" id="importFile" style="display:none" accept=".json" onchange="importarTemplates(event)">
             <hr class="separator" style="margin:14px 0;">
+            <button class="btn-outline" onclick="confirmarRestaurarPadroes()">🔄 Restaurar modelos padrão</button>
             <button class="btn-ghost-red" onclick="confirmarLimparHistorico()">🗑 Limpar histórico local</button>
         </div>
     </div>
@@ -777,16 +778,520 @@
     });
 
     // ─── CLOUD ────────────────────────────────────────────────────────────────
+    // ─── DEFAULT TEMPLATES (30+) ──────────────────────────────────────────────
+    const DEFAULT_TEMPLATES = {
+        // ── TI / INFORMÁTICA ──────────────────────────────────────────────────
+        "💻 TI — Computador lento / travando": {
+            testes: [
+                "Verificação do uso de CPU e RAM via Gerenciador de Tarefas",
+                "Identificação de processos consumindo recursos excessivos",
+                "Verificação do espaço disponível em disco",
+                "Teste de inicialização no modo seguro",
+                "Verificação da temperatura do processador e memória",
+                "Análise de programas iniciando junto com o sistema"
+            ],
+            resolucoes: [
+                "Encerramento de processos desnecessários em segundo plano",
+                "Limpeza de arquivos temporários e cache do sistema",
+                "Desativação de programas de inicialização automática",
+                "Desfragmentação / otimização do disco (HD/SSD)",
+                "Ampliação da memória virtual do sistema",
+                "Atualização de drivers de chipset e memória"
+            ]
+        },
+        "💻 TI — Computador não liga": {
+            testes: [
+                "Verificação da conexão do cabo de energia e tomada",
+                "Teste com outra fonte de energia / cabo reserva",
+                "Verificação do LED de energia na placa-mãe",
+                "Teste de inicialização sem periféricos externos",
+                "Verificação de sons de POST (bipes) da BIOS",
+                "Teste dos pinos de power do gabinete na placa-mãe"
+            ],
+            resolucoes: [
+                "Substituição / reencaixe do cabo de energia",
+                "Reencaixe dos módulos de memória RAM nos slots",
+                "Reset de BIOS via jumper ou remoção da bateria CMOS",
+                "Substituição da fonte de alimentação",
+                "Limpeza geral interna com ar comprimido",
+                "Encaminhamento para manutenção de hardware especializada"
+            ]
+        },
+        "💻 TI — Tela azul (BSOD)": {
+            testes: [
+                "Registro do código de erro exibido na tela azul",
+                "Verificação de logs no Visualizador de Eventos do Windows",
+                "Teste de integridade da memória RAM (Windows Memory Diagnostic)",
+                "Verificação de erros no disco com CHKDSK",
+                "Análise de drivers instalados recentemente",
+                "Verificação de atualizações do Windows pendentes"
+            ],
+            resolucoes: [
+                "Desinstalação do driver / software instalado recentemente",
+                "Restauração do sistema para ponto anterior ao problema",
+                "Atualização ou reinstalação dos drivers de vídeo e chipset",
+                "Reparo de arquivos de sistema com SFC /scannow e DISM",
+                "Substituição de módulo de RAM com defeito identificado",
+                "Reinstalação do sistema operacional (último recurso)"
+            ]
+        },
+        "💻 TI — Vírus / Malware": {
+            testes: [
+                "Verificação de comportamentos suspeitos (pop-ups, lentidão repentina)",
+                "Análise com antivírus atualizado em modo completo",
+                "Verificação de extensões suspeitas no navegador",
+                "Análise de processos estranhos no Gerenciador de Tarefas",
+                "Verificação de tarefas agendadas não reconhecidas",
+                "Scan com Malwarebytes em modo offline"
+            ],
+            resolucoes: [
+                "Remoção das ameaças identificadas pelo antivírus",
+                "Remoção manual de extensões e adwares do navegador",
+                "Limpeza de entradas suspeitas no registro do Windows",
+                "Atualização e reconfiguração do antivírus corporativo",
+                "Redefinição completa das configurações do navegador",
+                "Formatação e reinstalação do sistema (caso infecção severa)"
+            ]
+        },
+        "💻 TI — Backup e restauração de dados": {
+            testes: [
+                "Inventário dos arquivos e pastas a serem preservados",
+                "Verificação do espaço disponível no destino do backup",
+                "Teste de leitura dos arquivos originais (sem corrupção)",
+                "Verificação da integridade do backup após cópia",
+                "Confirmação com o usuário sobre dados críticos"
+            ],
+            resolucoes: [
+                "Realização do backup completo em mídia externa / nuvem",
+                "Restauração dos arquivos no destino correto",
+                "Configuração de backup automático agendado",
+                "Orientação ao usuário sobre boas práticas de backup",
+                "Documentação das pastas e arquivos salvaguardados"
+            ]
+        },
+        "💻 TI — Formatação e reinstalação do Windows": {
+            testes: [
+                "Backup de todos os dados do usuário antes do procedimento",
+                "Verificação da licença do Windows (chave OEM/Retail)",
+                "Levantamento de softwares necessários para reinstalação",
+                "Verificação de drivers disponíveis para o hardware",
+                "Confirmação e autorização do usuário para a formatação"
+            ],
+            resolucoes: [
+                "Formatação completa do disco e instalação limpa do Windows",
+                "Instalação e atualização de todos os drivers do hardware",
+                "Reinstalação dos softwares essenciais (Office, antivírus etc.)",
+                "Restauração dos dados pessoais do backup",
+                "Configuração de conta de usuário e preferências do sistema",
+                "Validação final com o usuário de todas as funcionalidades"
+            ]
+        },
+
+        // ── REDES / CONECTIVIDADE ─────────────────────────────────────────────
+        "🌐 Rede — Sem acesso à internet": {
+            testes: [
+                "Verificação do status das luzes do roteador/switch",
+                "Teste de ping para o gateway padrão (192.168.x.1)",
+                "Teste de ping para DNS externo (8.8.8.8)",
+                "Verificação do IP atribuído (DHCP ou conflito)",
+                "Teste em outro dispositivo na mesma rede",
+                "Verificação do cabo de rede ou sinal Wi-Fi"
+            ],
+            resolucoes: [
+                "Reinicialização do roteador e modem (power cycle)",
+                "Renovação do IP via ipconfig /release e /renew",
+                "Configuração manual de DNS (8.8.8.8 / 1.1.1.1)",
+                "Substituição do cabo de rede danificado",
+                "Reconfiguração do adaptador de rede",
+                "Acionamento da operadora de internet para verificação da linha"
+            ]
+        },
+        "🌐 Rede — Conexão lenta ou instável": {
+            testes: [
+                "Teste de velocidade via speedtest.net",
+                "Verificação da intensidade do sinal Wi-Fi no local",
+                "Monitoramento de uso de banda por dispositivo/aplicação",
+                "Teste de latência (ping) para servidores locais e externos",
+                "Verificação de interferências no canal Wi-Fi (2.4GHz vs 5GHz)",
+                "Análise de logs de erros no roteador"
+            ],
+            resolucoes: [
+                "Mudança de canal do Wi-Fi para menos congestionado",
+                "Priorização de banda para dispositivos críticos (QoS)",
+                "Posicionamento ou adição de repetidor/access point",
+                "Substituição de cabo de rede com perda de sinal",
+                "Atualização do firmware do roteador",
+                "Solicitação de upgrade de plano com a operadora"
+            ]
+        },
+        "🌐 Rede — VPN não conecta": {
+            testes: [
+                "Verificação de conectividade básica com a internet",
+                "Teste de acesso ao servidor VPN por IP e por hostname",
+                "Verificação das credenciais de acesso à VPN",
+                "Teste com outro protocolo VPN (OpenVPN, L2TP, IKEv2)",
+                "Verificação de bloqueio por firewall local ou corporativo",
+                "Análise dos logs do cliente VPN"
+            ],
+            resolucoes: [
+                "Atualização do cliente VPN para versão mais recente",
+                "Liberação das portas necessárias no firewall (UDP 1194, TCP 443 etc.)",
+                "Reconfiguração do perfil de conexão VPN",
+                "Reset das credenciais e geração de novo certificado",
+                "Reinstalação do cliente VPN",
+                "Encaminhamento ao administrador de rede para revisão do servidor"
+            ]
+        },
+        "🌐 Rede — Wi-Fi não aparece ou não conecta": {
+            testes: [
+                "Verificação se o adaptador Wi-Fi está ativo no dispositivo",
+                "Teste de detecção de outras redes Wi-Fi disponíveis",
+                "Verificação do driver do adaptador wireless",
+                "Teste em outros dispositivos na mesma rede",
+                "Verificação da senha e segurança da rede (WPA2/WPA3)",
+                "Análise de bloqueio por endereço MAC no roteador"
+            ],
+            resolucoes: [
+                "Reinstalação / atualização do driver do adaptador Wi-Fi",
+                "Exclusão do perfil de rede salvo e nova conexão",
+                "Liberação do MAC address no roteador",
+                "Reset das configurações de rede (netsh winsock reset)",
+                "Substituição do adaptador USB Wi-Fi (se externo)",
+                "Configuração de IP fixo para evitar conflito de DHCP"
+            ]
+        },
+        "🌐 Rede — Compartilhamento de arquivos na rede": {
+            testes: [
+                "Verificação se os computadores estão no mesmo grupo de trabalho",
+                "Teste de ping entre os computadores da rede local",
+                "Verificação das permissões de compartilhamento das pastas",
+                "Verificação do Firewall do Windows permitindo compartilhamento",
+                "Teste de acesso via \\\\IP do servidor no Windows Explorer"
+            ],
+            resolucoes: [
+                "Ativação do compartilhamento de arquivos e impressoras",
+                "Configuração correta do grupo de trabalho em todos os PCs",
+                "Ajuste das permissões de acesso nas pastas compartilhadas",
+                "Criação de regra no Firewall para permitir tráfego SMB",
+                "Mapeamento de unidade de rede no cliente",
+                "Configuração de conta com permissão de acesso à pasta"
+            ]
+        },
+        "🌐 Rede — Switch ou cabeamento com falha": {
+            testes: [
+                "Identificação da porta com problema no switch (LED apagado)",
+                "Teste do cabo de rede com testador de cabos",
+                "Substituição do cabo por um reserva para diagnóstico",
+                "Teste do equipamento em outra porta do switch",
+                "Verificação de danos físicos no conector RJ-45",
+                "Análise de logs de erros no switch gerenciado"
+            ],
+            resolucoes: [
+                "Substituição do cabo de rede com defeito",
+                "Recravação ou substituição do conector RJ-45 danificado",
+                "Migração do equipamento para porta funcional do switch",
+                "Substituição do switch com defeito",
+                "Documentação e etiquetagem do novo cabeamento",
+                "Teste completo de todos os pontos de rede do ambiente"
+            ]
+        },
+
+        // ── IMPRESSORAS / PERIFÉRICOS ─────────────────────────────────────────
+        "🖨️ Impressora — Não imprime": {
+            testes: [
+                "Verificação do status da impressora (online/offline)",
+                "Verificação de fila de impressão travada",
+                "Teste de impressão via página de configuração da impressora",
+                "Verificação da conexão USB ou de rede da impressora",
+                "Verificação dos níveis de toner/tinta e papel",
+                "Teste com outro documento ou aplicativo"
+            ],
+            resolucoes: [
+                "Cancelamento e limpeza da fila de impressão",
+                "Reinicialização do serviço Spooler de Impressão (Print Spooler)",
+                "Reinstalação do driver da impressora",
+                "Configuração da impressora como padrão no sistema",
+                "Reconexão física do cabo USB ou reconfiguração de IP de rede",
+                "Atualização do firmware da impressora"
+            ]
+        },
+        "🖨️ Impressora — Qualidade de impressão ruim": {
+            testes: [
+                "Impressão de página de diagnóstico / alinhamento",
+                "Verificação do nível de toner ou tinta",
+                "Verificação de papel inadequado para o tipo de impressão",
+                "Análise visual do tipo de defeito (listras, manchas, desbotado)",
+                "Verificação da configuração de qualidade no driver"
+            ],
+            resolucoes: [
+                "Execução de limpeza de cabeçote de impressão",
+                "Alinhamento dos cabeçotes via utilitário da impressora",
+                "Substituição do cartucho de tinta / toner vazio ou com defeito",
+                "Ajuste de configuração de qualidade no driver (Alta Qualidade)",
+                "Substituição do rolo de transferência ou fusor (laser)",
+                "Limpeza interna da impressora com kit específico"
+            ]
+        },
+        "🖨️ Impressora — Papel enroscado (jam)": {
+            testes: [
+                "Localização do papel preso dentro da impressora",
+                "Verificação de fragmentos de papel que possam ter ficado",
+                "Verificação do tipo e gramatura do papel utilizado",
+                "Teste de impressão após remoção do papel",
+                "Inspeção dos rolos de alimentação de papel"
+            ],
+            resolucoes: [
+                "Remoção cuidadosa do papel preso sem rasgar",
+                "Limpeza dos rolos de alimentação com pano levemente umedecido",
+                "Substituição do papel por um adequado às especificações",
+                "Ajuste das guias de papel da bandeja",
+                "Substituição dos rolos de tração desgastados",
+                "Orientação ao usuário sobre capacidade e tipo de papel correto"
+            ]
+        },
+        "🖨️ Impressora — Impressora de rede não localizada": {
+            testes: [
+                "Verificação do IP da impressora via painel ou página de configuração",
+                "Teste de ping para o IP da impressora",
+                "Verificação se a impressora está no mesmo segmento de rede",
+                "Tentativa de adicionar impressora via IP no Windows",
+                "Verificação de bloqueio no firewall para a porta 9100 ou 631"
+            ],
+            resolucoes: [
+                "Configuração de IP fixo na impressora",
+                "Adição manual da impressora via endereço IP no Windows/Mac",
+                "Instalação do driver correto para impressão em rede",
+                "Liberação das portas de impressão no firewall",
+                "Configuração do servidor de impressão (print server)",
+                "Compartilhamento da impressora via servidor ou estação dedicada"
+            ]
+        },
+        "🖨️ Periférico — Mouse ou teclado sem resposta": {
+            testes: [
+                "Teste do periférico em outra porta USB",
+                "Teste em outro computador para isolar o problema",
+                "Verificação de driver do dispositivo no Gerenciador de Dispositivos",
+                "Verificação de bateria (periféricos sem fio)",
+                "Teste do receptor USB (mouse/teclado sem fio)"
+            ],
+            resolucoes: [
+                "Substituição da porta USB ou uso de hub USB",
+                "Atualização ou reinstalação do driver do dispositivo",
+                "Troca das pilhas / carregamento da bateria",
+                "Reemparelhamento do receptor sem fio",
+                "Substituição do periférico com defeito",
+                "Limpeza dos contatos do teclado / mouse com ar comprimido"
+            ]
+        },
+        "🖨️ Periférico — Monitor sem imagem ou com defeito": {
+            testes: [
+                "Verificação do cabo de vídeo (HDMI, DisplayPort, VGA)",
+                "Teste com outro cabo de vídeo",
+                "Teste do monitor em outro computador",
+                "Verificação se o PC está reconhecendo o monitor (Gerenciador de Disp.)",
+                "Teste de outro monitor no mesmo computador",
+                "Verificação da resolução e taxa de atualização configuradas"
+            ],
+            resolucoes: [
+                "Substituição do cabo de vídeo danificado",
+                "Atualização do driver da placa de vídeo",
+                "Ajuste da resolução e taxa de atualização compatíveis",
+                "Limpeza dos contatos do conector de vídeo",
+                "Configuração de monitor estendido ou principal no Windows",
+                "Encaminhamento para manutenção (monitor com defeito físico)"
+            ]
+        },
+
+        // ── SISTEMAS / SOFTWARE ───────────────────────────────────────────────
+        "⚙️ Sistema — Aplicativo travando ou fechando": {
+            testes: [
+                "Reprodução do erro e registro de mensagem de falha",
+                "Verificação de logs de erro no Visualizador de Eventos",
+                "Teste do aplicativo com outro usuário do sistema",
+                "Verificação de compatibilidade com a versão do sistema operacional",
+                "Verificação de pré-requisitos (.NET, C++ Redistributable, Java)",
+                "Teste com antivírus desativado temporariamente"
+            ],
+            resolucoes: [
+                "Instalação de pré-requisitos ausentes (.NET, VC++ etc.)",
+                "Reparação da instalação do aplicativo via Painel de Controle",
+                "Limpeza de cache e configurações locais do aplicativo",
+                "Atualização do aplicativo para versão mais recente",
+                "Reinstalação completa do aplicativo",
+                "Criação de novo perfil de usuário no sistema"
+            ]
+        },
+        "⚙️ Sistema — Erro de impressão no sistema ERP/interno": {
+            testes: [
+                "Verificação se a impressora padrão está configurada corretamente",
+                "Teste de impressão a partir de outro aplicativo (Bloco de Notas)",
+                "Verificação das permissões do usuário para imprimir no sistema",
+                "Análise do log de erros do ERP / sistema interno",
+                "Teste com outro usuário no mesmo computador"
+            ],
+            resolucoes: [
+                "Reconfiguração da impressora padrão no Windows",
+                "Ajuste das permissões de impressão no perfil do usuário no sistema",
+                "Reinstalação do driver da impressora",
+                "Configuração do caminho de impressão nas configurações do sistema",
+                "Atualização do módulo de impressão do ERP",
+                "Encaminhamento para suporte do fornecedor do sistema"
+            ]
+        },
+        "⚙️ Sistema — Atualização do Windows com erro": {
+            testes: [
+                "Verificação do código de erro da atualização",
+                "Verificação do espaço em disco disponível (mínimo 10 GB)",
+                "Execução do solucionador de problemas do Windows Update",
+                "Verificação de serviços de atualização em execução (wuauserv, bits)",
+                "Análise do arquivo WindowsUpdate.log"
+            ],
+            resolucoes: [
+                "Limpeza dos arquivos temporários de atualização (SoftwareDistribution)",
+                "Reset dos componentes do Windows Update via script",
+                "Instalação manual do pacote de atualização (.msu) via Catálogo Microsoft",
+                "Liberação de espaço em disco para conclusão da atualização",
+                "Atualização via ferramenta Media Creation Tool",
+                "Reparo de arquivos de sistema com DISM e SFC antes de novo ciclo"
+            ]
+        },
+        "⚙️ Sistema — Perfil de usuário corrompido": {
+            testes: [
+                "Verificação da mensagem de erro no login",
+                "Teste de login com outro usuário no mesmo computador",
+                "Análise do Visualizador de Eventos para erros de perfil",
+                "Verificação da pasta C:\\Users do usuário afetado",
+                "Verificação de entradas no registro (ProfileList)"
+            ],
+            resolucoes: [
+                "Cópia dos dados do perfil corrompido para local seguro",
+                "Criação de novo perfil de usuário local",
+                "Migração dos dados pessoais para o novo perfil",
+                "Correção manual das entradas de registro do perfil",
+                "Remoção e novo ingresso do computador no domínio (se aplicável)",
+                "Reconfiguração de e-mail, impressoras e atalhos no novo perfil"
+            ]
+        },
+        "⚙️ Sistema — E-mail não envia ou não recebe (Outlook)": {
+            testes: [
+                "Verificação de conectividade com a internet",
+                "Teste de acesso ao Webmail pelo navegador",
+                "Verificação do status do servidor de e-mail (Exchange/SMTP/IMAP)",
+                "Verificação de mensagens de erro na caixa de saída",
+                "Teste com novo perfil do Outlook",
+                "Verificação de cota de caixa de e-mail excedida"
+            ],
+            resolucoes: [
+                "Reparação do perfil do Outlook via Painel de Controle > E-mail",
+                "Reconfiguração da conta de e-mail com credenciais corretas",
+                "Limpeza / arquivamento de itens para liberar cota",
+                "Atualização do Outlook para versão mais recente",
+                "Liberação de porta SMTP/IMAP no firewall",
+                "Recriação completa do perfil de e-mail do Outlook"
+            ]
+        },
+        "⚙️ Sistema — Acesso remoto (TeamViewer/AnyDesk) sem funcionar": {
+            testes: [
+                "Verificação se o serviço de acesso remoto está em execução",
+                "Teste de conectividade com a internet do dispositivo remoto",
+                "Verificação de versão atualizada do software de acesso remoto",
+                "Verificação de bloqueio do programa por antivírus ou firewall",
+                "Teste com software alternativo de acesso remoto"
+            ],
+            resolucoes: [
+                "Atualização do TeamViewer/AnyDesk para versão mais recente",
+                "Liberação do software no antivírus e firewall",
+                "Reinstalação do cliente de acesso remoto",
+                "Configuração de inicialização automática do serviço",
+                "Geração de novo ID e senha de acesso",
+                "Configuração de acesso sem supervisão (unattended access)"
+            ]
+        },
+        "⚙️ Sistema — Instalação de software corporativo": {
+            testes: [
+                "Verificação dos requisitos de sistema do software",
+                "Verificação de permissões de administrador para instalação",
+                "Verificação de espaço em disco disponível",
+                "Verificação de versões anteriores instaladas que possam conflitar",
+                "Confirmação da licença disponível para o usuário"
+            ],
+            resolucoes: [
+                "Desinstalação de versão anterior do software",
+                "Instalação do software com privilégios de administrador",
+                "Configuração de chave de licença ou ativação",
+                "Configuração de preferências e integrações necessárias",
+                "Teste de funcionamento completo com o usuário",
+                "Registro da licença no inventário de software da empresa"
+            ]
+        },
+        "⚙️ Sistema — Certificado digital não reconhecido": {
+            testes: [
+                "Verificação se o certificado digital está instalado no sistema",
+                "Teste do certificado em navegadores diferentes",
+                "Verificação da validade e data de expiração do certificado",
+                "Verificação do driver do token/smartcard",
+                "Teste com outro token ou leitora de cartão"
+            ],
+            resolucoes: [
+                "Instalação ou atualização do driver do token/smartcard",
+                "Reinstalação do certificado na loja de certificados do Windows",
+                "Instalação do software gestor do certificado (SafeSign, etc.)",
+                "Renovação do certificado digital expirado junto à AC",
+                "Configuração do certificado no navegador para uso com gov.br/sistemas",
+                "Limpeza de certificados antigos ou conflitantes"
+            ]
+        },
+        "⚙️ Sistema — Novo usuário / configuração de acesso": {
+            testes: [
+                "Confirmação dos dados do novo usuário com o solicitante",
+                "Verificação dos sistemas e recursos que o usuário precisará acessar",
+                "Verificação de disponibilidade de licenças necessárias"
+            ],
+            resolucoes: [
+                "Criação da conta de usuário no Active Directory / sistema de gestão",
+                "Configuração dos grupos de acesso e permissões necessárias",
+                "Criação e configuração do perfil de e-mail corporativo",
+                "Instalação e ativação dos softwares necessários na estação",
+                "Configuração de VPN, impressoras e unidades de rede",
+                "Entrega das credenciais e orientação inicial ao usuário"
+            ]
+        },
+        "⚙️ Sistema — Armazenamento em nuvem (OneDrive/Google Drive) com erro": {
+            testes: [
+                "Verificação do status de sincronização no ícone da bandeja",
+                "Verificação de espaço disponível na nuvem e no disco local",
+                "Verificação de conectividade com a internet",
+                "Análise dos logs e erros exibidos pelo aplicativo",
+                "Teste de acesso via navegador (versão web)"
+            ],
+            resolucoes: [
+                "Desvinculação e nova vinculação da conta ao aplicativo",
+                "Limpeza do cache local do aplicativo de nuvem",
+                "Liberação de espaço na nuvem (exclusão de arquivos desnecessários)",
+                "Reinstalação do cliente de armazenamento em nuvem",
+                "Configuração de pastas seletivas para sincronização",
+                "Verificação e ajuste de política de firewall/proxy para o serviço"
+            ]
+        }
+    };
+
     async function carregarDaNuvem() {
         if (!currentUser) return;
         try {
             const docRef = doc(db, "userData", currentUser.uid);
             const docSnap = await getDoc(docRef);
-            templates = docSnap.exists() ? (docSnap.data().templates || {}) : {};
+            if (docSnap.exists() && docSnap.data().templates && Object.keys(docSnap.data().templates).length > 0) {
+                templates = docSnap.data().templates;
+            } else {
+                // Primeiro acesso: semear com templates padrão
+                templates = { ...DEFAULT_TEMPLATES };
+                await setDoc(docRef, { templates }, { merge: true });
+                showToast('🎉 30 modelos padrão carregados automaticamente!', 'success');
+            }
             renderMenus();
         } catch (err) {
             showToast('❌ Erro ao carregar modelos da nuvem.', 'error');
-            templates = {};
+            templates = { ...DEFAULT_TEMPLATES };
             renderMenus();
         }
     }
@@ -1061,6 +1566,15 @@
         } catch {
             showToast('❌ Não foi possível copiar.', 'error');
         }
+    };
+
+    window.confirmarRestaurarPadroes = function () {
+        openModal('Restaurar modelos padrão', 'Isso irá <strong>adicionar</strong> os 30+ modelos padrão à sua lista (sem apagar os seus modelos personalizados). Deseja continuar?', async () => {
+            templates = { ...DEFAULT_TEMPLATES, ...templates };
+            renderMenus();
+            await salvarNaNuvem();
+            showToast('✅ Modelos padrão restaurados!', 'success');
+        });
     };
 
     window.confirmarLimparHistorico = function () {
